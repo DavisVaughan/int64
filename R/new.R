@@ -30,9 +30,9 @@ new_int64_vctr <- function(x, ..., class) {
 # ------------------------------------------------------------------------------
 
 new_altrep_int64 <- function(x) {
-  .Call(int64_new_altrep_int64, x)
+  .Call(export_new_altrep_int64, x)
 }
 
 is_altrep_int64 <- function(x) {
-  .Call(int64_is_altrep_int64, x)
+  .Call(export_is_altrep_int64, x)
 }

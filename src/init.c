@@ -7,15 +7,17 @@
 #include <R_ext/Rdynload.h>
 
 // .Call declarations
-extern SEXP int64_new_altrep_int64(SEXP);
-extern SEXP int64_is_altrep_int64(SEXP);
-extern SEXP new_empty_int64();
+extern SEXP export_new_altrep_int64(SEXP);
+extern SEXP export_is_altrep_int64(SEXP);
+extern SEXP export_int64_as_to(SEXP, SEXP);
+extern SEXP export_x_as_altrep_int64(SEXP);
 
 // .Call entries
 static const R_CallMethodDef CallEntries[] = {
-  {"int64_new_altrep_int64", (DL_FUNC) &int64_new_altrep_int64, 1},
-  {"int64_is_altrep_int64",  (DL_FUNC) &int64_is_altrep_int64, 1},
-  {"new_empty_int64",        (DL_FUNC) &new_empty_int64, 0},
+  {"export_new_altrep_int64",  (DL_FUNC) &export_new_altrep_int64, 1},
+  {"export_is_altrep_int64",   (DL_FUNC) &export_is_altrep_int64, 1},
+  {"export_int64_as_to",       (DL_FUNC) &export_int64_as_to, 2},
+  {"export_x_as_altrep_int64", (DL_FUNC) &export_x_as_altrep_int64, 1},
   {NULL, NULL, 0}
 };
 

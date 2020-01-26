@@ -12,7 +12,10 @@
 // --------------------------------------------------------------
 // API
 
-#define INTEGER64(x) ((long long*) DATAPTR(x))
-#define INTEGER64_RO(x) ((const long long*) DATAPTR_RO(x))
+#define INT64(x) ((long long*) DATAPTR(x))
+#define INT64_RO(x) ((const long long*) DATAPTR_RO(x))
+
+// TODO is this right?
+#define NA_INT64 LONG_LONG_MIN
 
 #endif

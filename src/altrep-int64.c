@@ -36,7 +36,7 @@ SEXP new_altrep_int64(SEXP x) {
 };
 
 // [[ export() ]]
-SEXP int64_new_altrep_int64(SEXP x) {
+SEXP export_new_altrep_int64(SEXP x) {
   return new_altrep_int64(x);
 }
 
@@ -72,7 +72,7 @@ bool is_altrep_int64(SEXP x) {
 }
 
 // [[ export() ]]
-SEXP int64_is_altrep_int64(SEXP x) {
+SEXP export_is_altrep_int64(SEXP x) {
   return Rf_ScalarLogical(is_altrep_int64(x));
 }
 
