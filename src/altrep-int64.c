@@ -27,8 +27,18 @@ SEXP new_altrep_int64(SEXP x) {
     );
   }
 
-  return R_new_altrep(altrep_int64_class_t, x, R_NilValue);
+  SEXP out = R_new_altrep(altrep_int64_class_t, x, R_NilValue);
+
+  // Copying vroom - force duplicate on modify
+  MARK_NOT_MUTABLE(out);
+
+  return out;
 };
+
+// [[ export() ]]
+SEXP int64_new_altrep_int64(SEXP x) {
+  return new_altrep_int64(x);
+}
 
 /*
  * Allocate a new ALTREP int64 of size `n`
@@ -46,6 +56,24 @@ SEXP altrep_int64_alloc(R_xlen_t n) {
 
   UNPROTECT(1);
   return out;
+}
+
+// {{ include("altrep-int64-api.h") }}
+bool is_altrep_int64(SEXP x) {
+  if (!ALTREP(x)) {
+    return false;
+  }
+
+  if (TYPEOF(x) != RAWSXP) {
+    return false;
+  }
+
+  return R_altrep_inherits(x, altrep_int64_class_t);
+}
+
+// [[ export() ]]
+SEXP int64_is_altrep_int64(SEXP x) {
+  return Rf_ScalarLogical(is_altrep_int64(x));
 }
 
 // --------------------------------------------------------------
@@ -89,6 +117,31 @@ static void* altrep_int64_Dataptr(SEXP x, Rboolean writable) {
 
 // --------------------------------------------------------------
 
+// TODO is this right for altrep_int64_Duplicate()?
+static SEXP r_altrep_maybe_duplicate(SEXP x, Rboolean deep) {
+  if (deep) {
+    return Rf_duplicate(x);
+  }
+
+  if (MAYBE_REFERENCED(x)) {
+    return Rf_shallow_duplicate(x);
+  } else {
+    return x;
+  }
+}
+
+static SEXP altrep_int64_Duplicate(SEXP x, Rboolean deep) {
+  SEXP data1 = R_altrep_data1(x);
+  data1 = PROTECT(r_altrep_maybe_duplicate(data1, deep));
+
+  SEXP out = PROTECT(new_altrep_int64(data1));
+
+  UNPROTECT(2);
+  return out;
+}
+
+// --------------------------------------------------------------
+
 // [[ init() ]]
 void init_altrep_int64(DllInfo* dll) {
   altrep_int64_class_t = R_make_altraw_class("int64_int64", "int64", dll);
@@ -96,6 +149,7 @@ void init_altrep_int64(DllInfo* dll) {
   // altrep
   R_set_altrep_Length_method(altrep_int64_class_t, altrep_int64_Length);
   R_set_altrep_Inspect_method(altrep_int64_class_t, altrep_int64_Inspect);
+  R_set_altrep_Duplicate_method(altrep_int64_class_t, altrep_int64_Duplicate);
 
   // altvec
   R_set_altvec_Dataptr_method(altrep_int64_class_t, altrep_int64_Dataptr);

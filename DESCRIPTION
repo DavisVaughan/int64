@@ -20,3 +20,5 @@ Imports:
     rlang,
     glue,
     vctrs
+Suggests: 
+    testthat (>= 2.1.0)
