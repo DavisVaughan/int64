@@ -7,8 +7,6 @@ int64 <- function(x) {
   new_int64(x)
 }
 
-# ------------------------------------------------------------------------------
-
 new_int64 <- function(x = raw(), ..., class = character()) {
   if (!is.raw(x)) {
     glue_abort("`x` must have type raw, not {class_collapse(x)}.")
@@ -21,17 +19,15 @@ new_int64 <- function(x = raw(), ..., class = character()) {
   new_int64_vctr(x, ..., class = class)
 }
 
-# ------------------------------------------------------------------------------
-
 new_int64_vctr <- function(x, ..., class) {
   new_vctr(x, ..., class = c(class, "int64"), inherit_base_type = FALSE)
 }
 
-# ------------------------------------------------------------------------------
-
 new_altrep_int64 <- function(x) {
   .Call(export_new_altrep_int64, x)
 }
+
+# ------------------------------------------------------------------------------
 
 is_altrep_int64 <- function(x) {
   .Call(export_is_altrep_int64, x)

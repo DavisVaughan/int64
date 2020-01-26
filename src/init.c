@@ -11,15 +11,19 @@ extern SEXP export_new_altrep_int64(SEXP);
 extern SEXP export_is_altrep_int64(SEXP);
 extern SEXP export_int64_as_to(SEXP, SEXP);
 extern SEXP export_x_as_altrep_int64(SEXP);
+extern SEXP export_int64_init_library(SEXP);
+extern SEXP export_int64_is_na(SEXP);
 extern SEXP export_format_int64(SEXP);
 
 // .Call entries
 static const R_CallMethodDef CallEntries[] = {
-  {"export_new_altrep_int64",  (DL_FUNC) &export_new_altrep_int64, 1},
-  {"export_is_altrep_int64",   (DL_FUNC) &export_is_altrep_int64, 1},
-  {"export_int64_as_to",       (DL_FUNC) &export_int64_as_to, 2},
-  {"export_x_as_altrep_int64", (DL_FUNC) &export_x_as_altrep_int64, 1},
-  {"export_format_int64",      (DL_FUNC) &export_format_int64, 1},
+  {"export_new_altrep_int64",   (DL_FUNC) &export_new_altrep_int64, 1},
+  {"export_is_altrep_int64",    (DL_FUNC) &export_is_altrep_int64, 1},
+  {"export_int64_as_to",        (DL_FUNC) &export_int64_as_to, 2},
+  {"export_x_as_altrep_int64",  (DL_FUNC) &export_x_as_altrep_int64, 1},
+  {"export_int64_init_library", (DL_FUNC) &export_int64_init_library, 1},
+  {"export_int64_is_na",        (DL_FUNC) &export_int64_is_na, 1},
+  {"export_format_int64",       (DL_FUNC) &export_format_int64, 1},
   {NULL, NULL, 0}
 };
 

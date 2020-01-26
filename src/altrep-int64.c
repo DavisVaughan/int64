@@ -1,5 +1,7 @@
 #include "altrep-int64-util.h"
 #include "altrep-int64-api.h"
+#include "utils.h"
+#include "int64.h"
 
 // --------------------------------------------------------------
 
@@ -142,6 +144,64 @@ static SEXP altrep_int64_Duplicate(SEXP x, Rboolean deep) {
 
 // --------------------------------------------------------------
 
+static SEXP r_quote(SEXP x) {
+  return Rf_lang2(Rf_install("quote"), x);
+}
+
+static SEXP int64_subscript_as_location(SEXP x, R_xlen_t n, SEXP names) {
+  SEXP call = PROTECT(Rf_lang4(
+    Rf_install("int64_subscript_as_location"),
+    PROTECT(r_quote(x)),
+    PROTECT(Rf_ScalarReal(n)),
+    PROTECT(r_quote(names))
+  ));
+
+  SEXP out = Rf_eval(call, int64_ns_env);
+
+  UNPROTECT(4);
+  return out;
+}
+
+static SEXP int64_slice(SEXP x, SEXP subscript) {
+  R_xlen_t x_size = Rf_xlength(x);
+
+  SEXP names = Rf_getAttrib(x, R_NamesSymbol);
+
+  SEXP locs = PROTECT(int64_subscript_as_location(subscript, x_size, names));
+  int* p_locs = INTEGER(locs);
+
+  R_xlen_t out_size = Rf_xlength(locs);
+
+  SEXP data1 = R_altrep_data1(x);
+  long long* p_data1 = INT64(data1);
+
+  SEXP out = PROTECT(altrep_int64_alloc(out_size));
+  long long* p_out = INT64(out);
+
+  for (R_xlen_t i = 0; i < out_size; ++i) {
+    int loc = p_locs[i];
+
+    if (loc == NA_INTEGER) {
+      p_out[i] = NA_INT64;
+      continue;
+    }
+
+    // R -> C based
+    --loc;
+
+    p_out[i] = p_data1[loc];
+  }
+
+  UNPROTECT(2);
+  return out;
+}
+
+static SEXP altrep_int64_Extract_subset(SEXP x, SEXP subscript, SEXP call) {
+  return int64_slice(x, subscript);
+}
+
+// --------------------------------------------------------------
+
 // [[ init() ]]
 void init_altrep_int64(DllInfo* dll) {
   altrep_int64_class_t = R_make_altraw_class("int64_int64", "int64", dll);
@@ -154,7 +214,7 @@ void init_altrep_int64(DllInfo* dll) {
   // altvec
   R_set_altvec_Dataptr_method(altrep_int64_class_t, altrep_int64_Dataptr);
   R_set_altvec_Dataptr_or_null_method(altrep_int64_class_t, altrep_int64_Dataptr_or_null);
-  //R_set_altvec_Extract_subset_method(altrep_int64_class_t, altrep_int64_Extract_subset);
+  R_set_altvec_Extract_subset_method(altrep_int64_class_t, altrep_int64_Extract_subset);
 
   // altraw
   //R_set_altraw_Elt_method(altrep_int64_class_t, altrep_int64_Elt);
