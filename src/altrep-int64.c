@@ -144,30 +144,12 @@ static SEXP altrep_int64_Duplicate(SEXP x, Rboolean deep) {
 
 // --------------------------------------------------------------
 
-static SEXP r_quote(SEXP x) {
-  return Rf_lang2(Rf_install("quote"), x);
-}
-
-static SEXP int64_subscript_as_location(SEXP x, R_xlen_t n, SEXP names) {
-  SEXP call = PROTECT(Rf_lang4(
-    Rf_install("int64_subscript_as_location"),
-    PROTECT(r_quote(x)),
-    PROTECT(Rf_ScalarReal(n)),
-    PROTECT(r_quote(names))
-  ));
-
-  SEXP out = Rf_eval(call, int64_ns_env);
-
-  UNPROTECT(4);
-  return out;
-}
-
 static SEXP int64_slice(SEXP x, SEXP subscript) {
   R_xlen_t x_size = Rf_xlength(x);
 
   SEXP names = Rf_getAttrib(x, R_NamesSymbol);
 
-  SEXP locs = PROTECT(int64_subscript_as_location(subscript, x_size, names));
+  SEXP locs = PROTECT(int64_vec_as_location(subscript, x_size, names));
   int* p_locs = INTEGER(locs);
 
   R_xlen_t out_size = Rf_xlength(locs);
@@ -217,5 +199,8 @@ void init_altrep_int64(DllInfo* dll) {
   R_set_altvec_Extract_subset_method(altrep_int64_class_t, altrep_int64_Extract_subset);
 
   // altraw
+
+  // Not sure if we will be able to implement this, as it expects a single Rbyte
+  // back, which is useless in the context of int64
   //R_set_altraw_Elt_method(altrep_int64_class_t, altrep_int64_Elt);
 }

@@ -83,6 +83,16 @@ SEXP export_int64_as_to(SEXP x, SEXP to) {
 // -----------------------------------------------------------------------------
 // Cast to -> altrep int64
 
+// Anything above or below this is a double value that cannot be represented
+// exactly, meaning that there is no way to know if it has a floating part or
+// not, so we consider that to be lossy automatically. For example, try:
+// options(digits = 22)
+// 2^53 # 9007199254740992
+// 2^53 + 1 # 9007199254740992 same as before!!
+// 2^53 + 2 # 9007199254740994
+#define MAX_CONTIGUOUSLY_REPRESENTABLE_DBL (9007199254740992)
+#define MIN_CONTIGUOUSLY_REPRESENTABLE_DBL (-9007199254740992)
+
 static SEXP dbl_as_altrep_int64(SEXP x) {
   double* p_x = REAL(x);
 
@@ -95,6 +105,13 @@ static SEXP dbl_as_altrep_int64(SEXP x) {
     double elt = p_x[i];
 
     if (isnan(elt)) {
+      p_out[i] = NA_INT64;
+      continue;
+    }
+
+    // TODO - Lossy warning!
+    if (elt > MAX_CONTIGUOUSLY_REPRESENTABLE_DBL ||
+        elt < MIN_CONTIGUOUSLY_REPRESENTABLE_DBL) {
       p_out[i] = NA_INT64;
       continue;
     }

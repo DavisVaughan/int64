@@ -7,6 +7,21 @@ glue_abort <- function(..., .sep = "", .envir = parent.frame()) {
 }
 
 # Called from C
-int64_subscript_as_location <- function(x, n, names) {
+int64_vec_as_location <- function(x, n, names) {
   vec_as_location(x, n, names)
+}
+
+# Called from C
+int64_vec_cast <- function(x, to) {
+  vec_cast(x, to)
+}
+
+# Called from C
+int64_vec_ptype2 <- function(x, y) {
+  vec_ptype2(x, y)
+}
+
+# Called from C
+int64_vec_recycle <- function(x, size) {
+  vec_recycle(x, size)
 }
