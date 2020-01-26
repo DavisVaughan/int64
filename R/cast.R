@@ -58,6 +58,21 @@ vec_cast.double.int64 <- function(x, to, ...) {
 
 # ------------------------------------------------------------------------------
 
+#' @method vec_cast.int64 integer
+#' @export
+vec_cast.int64.integer <- function(x, to, ...) {
+  out <- x_as_altrep_int64(x)
+  new_int64(out)
+}
+
+#' @method vec_cast.integer int64
+#' @export
+vec_cast.integer.int64 <- function(x, to, ...) {
+  int64_as_to(x, to)
+}
+
+# ------------------------------------------------------------------------------
+
 int64_as_to <- function(x, to) {
   .Call(export_int64_as_to, x, to)
 }

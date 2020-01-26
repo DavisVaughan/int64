@@ -33,12 +33,42 @@ static SEXP int64_as_double(SEXP x) {
   return out;
 }
 
+static SEXP int64_as_integer(SEXP x) {
+  long long* p_x = INT64(x);
+
+  R_xlen_t size = Rf_xlength(x);
+
+  SEXP out = PROTECT(Rf_allocVector(INTSXP, size));
+  int* p_out = INTEGER(out);
+
+  for (R_xlen_t i = 0; i < size; ++i) {
+    long long elt = p_x[i];
+
+    if (elt == NA_INT64) {
+      p_out[i] = NA_INTEGER;
+      continue;
+    }
+
+    // TODO - Lossy warning!
+    if (elt < INT_MIN || elt > INT_MAX) {
+      p_out[i] = NA_INTEGER;
+      continue;
+    }
+
+    p_out[i] = (int) elt;
+  }
+
+  UNPROTECT(1);
+  return out;
+}
+
 static SEXP int64_as_to(SEXP x, SEXP to) {
   switch(TYPEOF(to)) {
   case REALSXP:
     return int64_as_double(x);
-  case LGLSXP:
   case INTSXP:
+    return int64_as_integer(x);
+  case LGLSXP:
   case STRSXP:
   case RAWSXP:
   default: Rf_errorcall(R_NilValue, "Cannot cast");
@@ -84,12 +114,36 @@ static SEXP dbl_as_altrep_int64(SEXP x) {
   return out;
 }
 
+static SEXP int_as_altrep_int64(SEXP x) {
+  int* p_x = INTEGER(x);
+
+  R_xlen_t size = Rf_xlength(x);
+
+  SEXP out = PROTECT(altrep_int64_alloc(size));
+  long long* p_out = INT64(out);
+
+  for (R_xlen_t i = 0; i < size; ++i) {
+    int elt = p_x[i];
+
+    if (elt == NA_INTEGER) {
+      p_out[i] = NA_INT64;
+      continue;
+    }
+
+    p_out[i] = (long long) elt;
+  }
+
+  UNPROTECT(1);
+  return out;
+}
+
 static SEXP x_as_altrep_int64(SEXP x) {
   switch(TYPEOF(x)) {
   case REALSXP:
     return dbl_as_altrep_int64(x);
-  case LGLSXP:
   case INTSXP:
+    return int_as_altrep_int64(x);
+  case LGLSXP:
   case STRSXP:
   case RAWSXP:
   default: Rf_errorcall(R_NilValue, "Cannot cast");
