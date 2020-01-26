@@ -30,6 +30,14 @@ SEXP new_altrep_int64(SEXP x) {
   return R_new_altrep(altrep_int64_class_t, x, R_NilValue);
 };
 
+/*
+ * Allocate a new ALTREP int64 of size `n`
+ *
+ * @param n The size of the int64 to allocate
+ *
+ * @return An ALTREP int64 of size `n`
+ */
+
 // {{ include("altrep-int64-api.h") }}
 SEXP altrep_int64_alloc(R_xlen_t n) {
   SEXP out = PROTECT(Rf_allocVector(RAWSXP, sizeof(long long) * n));
