@@ -88,6 +88,20 @@ SEXP int64_vec_recycle(SEXP x, R_xlen_t size) {
   return out;
 }
 
+// {{ include("utils.h") }}
+SEXP int64_vec_slice(SEXP x, SEXP i) {
+  SEXP call = PROTECT(Rf_lang3(
+    Rf_install("int64_vec_slice"),
+    PROTECT(r_quote(x)),
+    PROTECT(r_quote(i))
+  ));
+
+  SEXP out = Rf_eval(call, int64_ns_env);
+
+  UNPROTECT(3);
+  return out;
+}
+
 // {{ include("init64.h") }}
 void int64_init_utils(SEXP ns) {
   int64_ns_env = ns;

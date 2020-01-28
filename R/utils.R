@@ -25,3 +25,8 @@ int64_vec_ptype2 <- function(x, y) {
 int64_vec_recycle <- function(x, size) {
   vec_recycle(x, size)
 }
+
+# Called from C
+int64_vec_slice <- function(x, i) {
+  vec_slice(x, i)
+}

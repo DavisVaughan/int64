@@ -144,42 +144,17 @@ static SEXP altrep_int64_Duplicate(SEXP x, Rboolean deep) {
 
 // --------------------------------------------------------------
 
-static SEXP int64_slice(SEXP x, SEXP subscript) {
-  R_xlen_t x_size = Rf_xlength(x);
-
-  SEXP names = Rf_getAttrib(x, R_NamesSymbol);
-
-  SEXP locs = PROTECT(int64_vec_as_location(subscript, x_size, names));
-  int* p_locs = INTEGER(locs);
-
-  R_xlen_t out_size = Rf_xlength(locs);
-
-  SEXP data1 = R_altrep_data1(x);
-  long long* p_data1 = INT64(data1);
-
-  SEXP out = PROTECT(altrep_int64_alloc(out_size));
-  long long* p_out = INT64(out);
-
-  for (R_xlen_t i = 0; i < out_size; ++i) {
-    int loc = p_locs[i];
-
-    if (loc == NA_INTEGER) {
-      p_out[i] = NA_INT64;
-      continue;
-    }
-
-    // R -> C based
-    --loc;
-
-    p_out[i] = p_data1[loc];
-  }
-
-  UNPROTECT(2);
-  return out;
-}
+/*
+ * We don't use the Extract_subset() method to handle `[` because the default
+ * fallthrough in `do_subset_dflt()` has a lot of edge cases that I'm worried
+ * about handling consistently. So we have a `[.int64` method to force dispatch
+ * before it gets to the fallthrough code. However, `vec_slice()` simply calls
+ * the `Extract_subset()` method directly without doing any extra processing,
+ * so it is safe to call it from there, skipping the `[.int64` dispatch!
+ */
 
 static SEXP altrep_int64_Extract_subset(SEXP x, SEXP subscript, SEXP call) {
-  return int64_slice(x, subscript);
+  return int64_subset(x, subscript);
 }
 
 // --------------------------------------------------------------

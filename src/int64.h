@@ -13,6 +13,8 @@
 // TODO is this right?
 #define NA_INT64 LONG_LONG_MIN
 
+SEXP int64_subset(SEXP x, SEXP subscript);
+
 // --------------------------------------------------------------
 // Library initializers
 
