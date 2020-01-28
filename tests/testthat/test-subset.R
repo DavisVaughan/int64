@@ -79,4 +79,7 @@ test_that("NA names are repaired to the empty string", {
 
   expect_named(x[NA_integer_], "")
   expect_named(x[c(1, NA_integer_)], c("x", ""))
+
+  expect_named(vec_slice(x, NA_integer_), "")
+  expect_named(vec_slice(x, c(1, NA_integer_)), c("x", ""))
 })
