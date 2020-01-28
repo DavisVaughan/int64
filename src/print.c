@@ -23,7 +23,7 @@ SEXP format_int64(SEXP x) {
       continue;
     }
 
-    snprintf(buf, MAX_INT64_ELT_SIZE, "%lld", p_x[i]);
+    snprintf(buf, MAX_INT64_ELT_SIZE, "%lli", p_x[i]);
 
     p_out_chr[i] = Rf_mkChar(buf);
   }
