@@ -83,3 +83,36 @@ test_that("NA names are repaired to the empty string", {
   expect_named(vec_slice(x, NA_integer_), "")
   expect_named(vec_slice(x, c(1, NA_integer_)), c("x", ""))
 })
+
+test_that("can use `[[` to extract elements", {
+  x <- as_int64(1:2)
+  expect_identical(x[[1]], as_int64(1))
+})
+
+test_that("`[[` drops names", {
+  x <- as_int64(1:2)
+  names(x) <- c("x", "y")
+  expect_named(x[[1]], NULL)
+})
+
+test_that("`[[` uses vec_as_location2() errors", {
+  x <- as_int64(1:5)
+
+  verify_output(
+    test_path("errors/test-subscript2-oob.txt"),
+    x[[6]]
+  )
+
+  verify_output(
+    test_path("errors/test-subscript2-oob-negate.txt"),
+    x[[-1]]
+  )
+
+  y <- as_int64(1:2)
+  names(y) <- c("x", "y")
+
+  verify_output(
+    test_path("errors/test-subscript2-oob-names.txt"),
+    y[["z"]]
+  )
+})

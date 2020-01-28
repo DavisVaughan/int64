@@ -2,6 +2,7 @@
 
 S3method("[",int64)
 S3method("[<-",int64)
+S3method("[[",int64)
 S3method(as.double,int64)
 S3method(as.integer,int64)
 S3method(format,int64)
