@@ -1,9 +1,10 @@
 #include "int64.h"
 
 // - 19 comes from printing out `LONG_LONG_MAX`
-// and counting the number of digits
-// - And + 1 for trailing space?
-#define MAX_INT64_ELT_SIZE 19 + 1
+//   and counting the number of digits
+// - `+ 1` because it could be negative and have a `-`
+// - And `+ 1` for trailing null thing?
+#define MAX_INT64_ELT_SIZE (19 + 1 + 1)
 
 SEXP format_int64(SEXP x) {
   long long* p_x =  INT64(x);
