@@ -40,8 +40,8 @@ SEXP export_int64_unpack(SEXP x) {
 
   SEXP out = PROTECT(new_unpacked_data_frame(size));
 
-  SET_VECTOR_ELT(out, 0, first);
-  SET_VECTOR_ELT(out, 1, last);
+  SET_VECTOR_ELT(out, 0, last);
+  SET_VECTOR_ELT(out, 1, first);
 
   UNPROTECT(3);
   return out;
@@ -60,11 +60,11 @@ SEXP export_int64_unpack(SEXP x) {
 
 // [[ export() ]]
 SEXP export_int64_pack(SEXP x) {
-  SEXP first = VECTOR_ELT(x, 0);
-  double* p_first = REAL(first);
-
-  SEXP last = VECTOR_ELT(x, 1);
+  SEXP last = VECTOR_ELT(x, 0);
   double* p_last = REAL(last);
+
+  SEXP first = VECTOR_ELT(x, 1);
+  double* p_first = REAL(first);
 
   R_xlen_t size = Rf_xlength(first);
 
@@ -109,14 +109,14 @@ static SEXP new_row_name_info(R_len_t size) {
 static SEXP new_unpacked_data_frame(R_len_t size) {
   SEXP out = PROTECT(Rf_allocVector(VECSXP, 2));
 
-  SEXP strings_first_last = PROTECT(Rf_allocVector(STRSXP, 2));
-  SET_STRING_ELT(strings_first_last, 0, Rf_mkChar("first"));
-  SET_STRING_ELT(strings_first_last, 1, Rf_mkChar("last"));
+  SEXP strings_last_first = PROTECT(Rf_allocVector(STRSXP, 2));
+  SET_STRING_ELT(strings_last_first, 0, Rf_mkChar("last"));
+  SET_STRING_ELT(strings_last_first, 1, Rf_mkChar("first"));
 
   SEXP classes_data_frame = PROTECT(Rf_allocVector(STRSXP, 1));
   SET_STRING_ELT(classes_data_frame, 0, Rf_mkChar("data.frame"));
 
-  Rf_setAttrib(out, R_NamesSymbol, strings_first_last);
+  Rf_setAttrib(out, R_NamesSymbol, strings_last_first);
   Rf_setAttrib(out, R_ClassSymbol, classes_data_frame);
   Rf_setAttrib(out, R_RowNamesSymbol, new_row_name_info(size));
 
