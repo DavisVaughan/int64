@@ -8,8 +8,10 @@
  * (long long) generally has 8, and an (int) is generally 4.
  */
 
+static SEXP new_unpacked_data_frame(R_len_t size);
+
 // [[ export() ]]
-SEXP int64_unpack(SEXP x) {
+SEXP export_int64_unpack(SEXP x) {
   long long* p_x = INT64(x);
 
   R_xlen_t size = Rf_xlength(x);
@@ -36,7 +38,7 @@ SEXP int64_unpack(SEXP x) {
     p_last[i] = p_elt_32[1];
   }
 
-  SEXP out = PROTECT(Rf_allocVector(VECSXP, 2));
+  SEXP out = PROTECT(new_unpacked_data_frame(size));
 
   SET_VECTOR_ELT(out, 0, first);
   SET_VECTOR_ELT(out, 1, last);
@@ -57,7 +59,7 @@ SEXP int64_unpack(SEXP x) {
  */
 
 // [[ export() ]]
-SEXP int64_pack(SEXP x) {
+SEXP export_int64_pack(SEXP x) {
   SEXP first = VECTOR_ELT(x, 0);
   int* p_first = INTEGER(first);
 
@@ -88,5 +90,36 @@ SEXP int64_pack(SEXP x) {
   out = PROTECT(new_int64(out));
 
   UNPROTECT(2);
+  return out;
+}
+
+// -----------------------------------------------------------------------------
+
+static SEXP new_row_name_info(R_len_t size) {
+  SEXP out = PROTECT(Rf_allocVector(INTSXP, 2));
+  int* p_out = INTEGER(out);
+
+  p_out[0] = NA_INTEGER;
+  p_out[1] = -size;
+
+  UNPROTECT(1);
+  return out;
+}
+
+static SEXP new_unpacked_data_frame(R_len_t size) {
+  SEXP out = PROTECT(Rf_allocVector(VECSXP, 2));
+
+  SEXP strings_first_last = PROTECT(Rf_allocVector(STRSXP, 2));
+  SET_STRING_ELT(strings_first_last, 0, Rf_mkChar("first"));
+  SET_STRING_ELT(strings_first_last, 1, Rf_mkChar("last"));
+
+  SEXP classes_data_frame = PROTECT(Rf_allocVector(STRSXP, 1));
+  SET_STRING_ELT(classes_data_frame, 0, Rf_mkChar("data.frame"));
+
+  Rf_setAttrib(out, R_NamesSymbol, strings_first_last);
+  Rf_setAttrib(out, R_ClassSymbol, classes_data_frame);
+  Rf_setAttrib(out, R_RowNamesSymbol, new_row_name_info(size));
+
+  UNPROTECT(3);
   return out;
 }
