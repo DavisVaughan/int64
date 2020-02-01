@@ -18,20 +18,6 @@ SEXP r_maybe_duplicate(SEXP x) {
 
 
 // {{ include("utils.h") }}
-SEXP new_int64(SEXP x) {
-  SEXP call = PROTECT(Rf_lang2(
-    Rf_install("new_int64"),
-    PROTECT(r_quote(x))
-  ));
-
-  SEXP out = Rf_eval(call, int64_ns_env);
-
-  UNPROTECT(2);
-  return out;
-}
-
-
-// {{ include("utils.h") }}
 SEXP int64_vec_as_location(SEXP x, R_xlen_t n, SEXP names) {
   SEXP call = PROTECT(Rf_lang4(
     Rf_install("int64_vec_as_location"),

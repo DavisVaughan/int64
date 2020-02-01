@@ -16,6 +16,7 @@ SEXP export_int64_int64_plus(SEXP x, SEXP y) {
   R_xlen_t size = Rf_xlength(x);
 
   SEXP out = PROTECT(altrep_int64_alloc(size));
+  new_int64(out);
   long long* p_out = INT64(out);
 
   for (R_xlen_t i = 0; i < size; ++i) {
@@ -44,9 +45,6 @@ SEXP export_int64_int64_plus(SEXP x, SEXP y) {
     }
   }
 
-  // TODO - improve me to be no copy
-  out = PROTECT(new_int64(out));
-
-  UNPROTECT(2);
+  UNPROTECT(1);
   return out;
 }

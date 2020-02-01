@@ -37,6 +37,7 @@ static SEXP int64_vector_subset(SEXP x, SEXP subscript) {
   long long* p_data1 = INT64(data1);
 
   SEXP out = PROTECT(altrep_int64_alloc(out_size));
+  new_int64(out);
   long long* p_out = INT64(out);
 
   for (R_xlen_t i = 0; i < out_size; ++i) {
@@ -60,9 +61,7 @@ static SEXP int64_vector_subset(SEXP x, SEXP subscript) {
     UNPROTECT(1);
   }
 
-  out = PROTECT(new_int64(out));
-
-  UNPROTECT(3);
+  UNPROTECT(2);
   return out;
 }
 

@@ -99,6 +99,7 @@ SEXP export_int64_pack(SEXP x) {
   R_xlen_t size = Rf_xlength(first);
 
   SEXP out = PROTECT(altrep_int64_alloc(size));
+  new_int64(out);
   long long* p_out_64 = INT64(out);
   int* p_out_32 = (int*) p_out_64;
 
@@ -118,9 +119,7 @@ SEXP export_int64_pack(SEXP x) {
     p_out_32[loc + 1] = (int) elt_last;
   }
 
-  out = PROTECT(new_int64(out));
-
-  UNPROTECT(2);
+  UNPROTECT(1);
   return out;
 }
 

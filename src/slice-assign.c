@@ -22,8 +22,7 @@ SEXP int64_slice_assign(SEXP x, SEXP i, SEXP value) {
   value = PROTECT(int64_vec_recycle(value, value_size));
   long long* p_value = INT64(value);
 
-  SEXP out = R_altrep_data1(x);
-  out = PROTECT(r_maybe_duplicate(out));
+  SEXP out = PROTECT(Rf_duplicate(x));
   long long* p_out = INT64(out);
 
   for (R_xlen_t i = 0; i < value_size; ++i) {
@@ -36,9 +35,7 @@ SEXP int64_slice_assign(SEXP x, SEXP i, SEXP value) {
     p_out[loc - 1] = p_value[i];
   }
 
-  out = PROTECT(new_int64(out));
-
-  UNPROTECT(5);
+  UNPROTECT(4);
   return out;
 }
 

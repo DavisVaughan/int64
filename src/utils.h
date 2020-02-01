@@ -14,7 +14,7 @@ extern SEXP int64_ns_env;
 SEXP r_quote(SEXP x);
 SEXP r_maybe_duplicate(SEXP x);
 
-SEXP new_int64(SEXP x);
+void new_int64(SEXP x);
 
 SEXP int64_vec_as_location(SEXP x, R_xlen_t n, SEXP names);
 SEXP int64_vec_cast(SEXP x, SEXP to);
