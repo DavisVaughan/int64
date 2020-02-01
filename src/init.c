@@ -14,6 +14,8 @@ extern SEXP export_x_as_altrep_int64(SEXP);
 extern SEXP export_int64_init_library(SEXP);
 extern SEXP as_int64_list(SEXP);
 extern SEXP export_int64_is_na(SEXP);
+extern SEXP int64_unpack(SEXP);
+extern SEXP int64_pack(SEXP);
 extern SEXP export_format_int64(SEXP);
 extern SEXP export_int64_slice_assign(SEXP, SEXP, SEXP);
 extern SEXP export_int64_subset(SEXP, SEXP);
@@ -27,6 +29,8 @@ static const R_CallMethodDef CallEntries[] = {
   {"export_int64_init_library", (DL_FUNC) &export_int64_init_library, 1},
   {"as_int64_list",             (DL_FUNC) &as_int64_list, 1},
   {"export_int64_is_na",        (DL_FUNC) &export_int64_is_na, 1},
+  {"int64_unpack",              (DL_FUNC) &int64_unpack, 1},
+  {"int64_pack",                (DL_FUNC) &int64_pack, 1},
   {"export_format_int64",       (DL_FUNC) &export_format_int64, 1},
   {"export_int64_slice_assign", (DL_FUNC) &export_int64_slice_assign, 3},
   {"export_int64_subset",       (DL_FUNC) &export_int64_subset, 2},
