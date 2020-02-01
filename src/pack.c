@@ -16,26 +16,26 @@ SEXP export_int64_unpack(SEXP x) {
 
   R_xlen_t size = Rf_xlength(x);
 
-  SEXP first = PROTECT(Rf_allocVector(INTSXP, size));
-  int* p_first = INTEGER(first);
+  SEXP first = PROTECT(Rf_allocVector(REALSXP, size));
+  double* p_first = REAL(first);
 
-  SEXP last = PROTECT(Rf_allocVector(INTSXP, size));
-  int* p_last = INTEGER(last);
+  SEXP last = PROTECT(Rf_allocVector(REALSXP, size));
+  double* p_last = REAL(last);
 
   for (R_xlen_t i = 0; i < size; ++i) {
     long long elt = p_x[i];
 
     if (elt == NA_INT64) {
-      p_first[i] = NA_INTEGER;
-      p_last[i] = NA_INTEGER;
+      p_first[i] = NA_REAL;
+      p_last[i] = NA_REAL;
       continue;
     }
 
     // Split by accessing 32 bits at a time
     int* p_elt_32 = (int*) &elt;
 
-    p_first[i] = p_elt_32[0];
-    p_last[i] = p_elt_32[1];
+    p_first[i] = (double) (unsigned int) p_elt_32[0];
+    p_last[i] = (double) p_elt_32[1];
   }
 
   SEXP out = PROTECT(new_unpacked_data_frame(size));
@@ -61,10 +61,10 @@ SEXP export_int64_unpack(SEXP x) {
 // [[ export() ]]
 SEXP export_int64_pack(SEXP x) {
   SEXP first = VECTOR_ELT(x, 0);
-  int* p_first = INTEGER(first);
+  double* p_first = REAL(first);
 
   SEXP last = VECTOR_ELT(x, 1);
-  int* p_last = INTEGER(last);
+  double* p_last = REAL(last);
 
   R_xlen_t size = Rf_xlength(first);
 
@@ -73,18 +73,18 @@ SEXP export_int64_pack(SEXP x) {
   int* p_out_32 = (int*) p_out_64;
 
   for (R_xlen_t i = 0; i < size; ++i) {
-    int elt_first = p_first[i];
-    int elt_last = p_last[i];
+    double elt_first = p_first[i];
+    double elt_last = p_last[i];
 
-    if (elt_first == NA_INTEGER && elt_last == NA_INTEGER) {
+    if (elt_first == NA_REAL && elt_last == NA_REAL) {
       p_out_64[i] = NA_INT64;
       continue;
     }
 
     int loc = i * 2;
 
-    p_out_32[loc] = elt_first;
-    p_out_32[loc + 1] = elt_last;
+    p_out_32[loc] = (int) (unsigned int) elt_first;
+    p_out_32[loc + 1] = (int) elt_last;
   }
 
   out = PROTECT(new_int64(out));
