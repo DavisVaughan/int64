@@ -3,9 +3,50 @@
 #include <inttypes.h>
 
 /*
- * Unpack a (long long) into two (int) values. This only relies on the standard
- * assumption that a (long long) is twice as many bytes as a (int). A
- * (long long) generally has 8, and an (int) is generally 4.
+ * Unpack a int64 vector into a data frame of two double vectors that encode
+ * all of the int64 information with no loss of precision, all while maintaining
+ * ordering.
+ *
+ * The idea is to take a 64-bit long long value and split it into two 32-bit
+ * parts, the `first` 32 bits and the `last` 32 bits.
+ *
+ * The `first` 32-bits are converted as follows:
+ * - To an `int`
+ * - Then to an `unsigned int`
+ * - Then to a `double`
+ *
+ * The `last` 32-bits are converted as follows:
+ * - To an `int`
+ * - Then to a `double`
+ *
+ * The reason we do it this way is to maintain ordering, so it can serve as a
+ * proxy for usage with `vec_order()` / `vec_sort()` and `vec_compare()`.
+ *
+ * The range of `first` is: [0, 4294967295]
+ * The range of `last` is: [-2147483648, 2147483647]
+ *
+ * The integer values in both of these ranges are representable as doubles
+ * with no loss of precision (you start to lose precision with integer values
+ * at 2^53 + 1).
+ *
+ * There are two reasons we have to use double vectors as containers. The first
+ * is that `NA_integer_` is represented in R as the smallest int value,
+ * `-2147483648`, but this value has an important meaning if it is assigned
+ * to `last`. It needs to not be NA. The second is more straightforward. We
+ * have to assign an unsigned int to an R object. The only one that can hold
+ * that range is a double.
+ *
+ * Order is maintained by first looking at the value of `last`, which
+ * represents the number of complete unsigned int ranges to shift by. If
+ * the values are equal, then we look to the value of `first`, which is value
+ * within the current unsigned int range.
+ *
+ * For example:
+ * int64_unpack(as_int64(c(-1, 0, 1)))
+ *   last      first
+ * 1   -1 4294967295
+ * 2    0          0
+ * 3    0          1
  */
 
 static SEXP new_unpacked_data_frame(R_len_t size);
@@ -47,17 +88,6 @@ SEXP export_int64_unpack(SEXP x) {
   return out;
 }
 
-/*
- * Pack two (int) values into a single (long long) value.
- *
- * The NA check must check both first and last
- * .Call(int64_unpack, as_int64("2147483648"))
- * will correctly give an int representation of
- * `first=NA_integer_, last=0`
- * but this will be a problem if we only check first
- * The result is only ever NA if both are NA
- */
-
 // [[ export() ]]
 SEXP export_int64_pack(SEXP x) {
   SEXP last = VECTOR_ELT(x, 0);
@@ -76,7 +106,8 @@ SEXP export_int64_pack(SEXP x) {
     double elt_first = p_first[i];
     double elt_last = p_last[i];
 
-    if (elt_first == NA_REAL && elt_last == NA_REAL) {
+    // Only need to check one
+    if (elt_first == NA_REAL) {
       p_out_64[i] = NA_INT64;
       continue;
     }
