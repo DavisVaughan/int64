@@ -49,6 +49,16 @@
  * 3    0          1
  */
 
+// Map `elt_first` into unsigned int range
+// This is essentially what the following cast would do
+// based on 6.3.1.3 of the C99 standard
+// (double) (unsigned int) elt_first
+// "Otherwise, if the new type is unsigned, the value is converted by
+// repeatedly adding or subtracting one more than the maximum value that
+// can be represented in the new type until the value is in the range of
+// the new type"
+// http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1256.pdf
+
 static SEXP new_unpacked_data_frame(R_len_t size);
 
 // [[ export() ]]
@@ -75,7 +85,16 @@ SEXP export_int64_unpack(SEXP x) {
     // Split by accessing 32 bits at a time
     int* p_elt_32 = (int*) &elt;
 
-    p_first[i] = (double) (unsigned int) p_elt_32[0];
+    int elt_first = p_elt_32[0];
+
+    // Map from int range to unsigned int range
+    // `- abs(elt_first)` to avoid ambiguity in int -> unsigned int promotion
+    if (signbit(elt_first)) {
+      p_first[i] = (double) (UINT_MAX + 1 - abs(elt_first));
+    } else {
+      p_first[i] = (double) elt_first;
+    }
+
     p_last[i] = (double) p_elt_32[1];
   }
 
@@ -115,7 +134,17 @@ SEXP export_int64_pack(SEXP x) {
 
     int loc = i * 2;
 
-    p_out_32[loc] = (int) (unsigned int) elt_first;
+    // Store in long long to avoid overflow. This is faster
+    // than doing arithmetic and comparisons with doubles
+    long long elt_first_ll = (long long) elt_first;
+
+    // Map from unsigned int range to int range
+    if (elt_first_ll > INT_MAX) {
+      p_out_32[loc] = (int) (elt_first_ll - UINT_MAX - 1);
+    } else {
+      p_out_32[loc] = (int) elt_first_ll;
+    }
+
     p_out_32[loc + 1] = (int) elt_last;
   }
 
