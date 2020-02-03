@@ -32,3 +32,19 @@ new_altrep_int64 <- function(x) {
 is_altrep_int64 <- function(x) {
   .Call(export_is_altrep_int64, x)
 }
+
+# ------------------------------------------------------------------------------
+
+# We want to define the proxy for equal/compare functions, but we don't want
+# to add an overall `vec_proxy()` method. This would be too expensive in
+# cases where we can use our higher performance slicing method
+
+#' @export
+vec_proxy_equal.int64 <- function(x, ...) {
+  int64_unpack(x)
+}
+
+#' @export
+vec_proxy_compare.int64 <- function(x, ...) {
+  int64_unpack(x)
+}
