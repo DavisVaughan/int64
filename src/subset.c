@@ -33,8 +33,7 @@ static SEXP int64_vector_subset(SEXP x, SEXP subscript) {
 
   R_xlen_t out_size = Rf_xlength(locs);
 
-  SEXP data1 = R_altrep_data1(x);
-  long long* p_data1 = INT64(data1);
+  long long* p_x = INT64(x);
 
   SEXP out = PROTECT(altrep_int64_alloc(out_size));
   new_int64(out);
@@ -51,7 +50,7 @@ static SEXP int64_vector_subset(SEXP x, SEXP subscript) {
     // R -> C based
     --loc;
 
-    p_out[i] = p_data1[loc];
+    p_out[i] = p_x[loc];
   }
 
   if (names != R_NilValue) {
