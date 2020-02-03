@@ -159,6 +159,15 @@ static SEXP altrep_int64_Extract_subset(SEXP x, SEXP subscript, SEXP call) {
 
 // --------------------------------------------------------------
 
+static Rbyte altrep_int64_Elt(SEXP vec, R_xlen_t i) {
+  Rf_errorcall(
+    R_NilValue,
+    "Internal error: The ALTREP `int64_Elt()` method should never be called"
+  );
+}
+
+// --------------------------------------------------------------
+
 // [[ init() ]]
 void init_altrep_int64(DllInfo* dll) {
   altrep_int64_class_t = R_make_altraw_class("int64_int64", "int64", dll);
@@ -177,5 +186,5 @@ void init_altrep_int64(DllInfo* dll) {
 
   // Not sure if we will be able to implement this, as it expects a single Rbyte
   // back, which is useless in the context of int64
-  //R_set_altraw_Elt_method(altrep_int64_class_t, altrep_int64_Elt);
+  R_set_altraw_Elt_method(altrep_int64_class_t, altrep_int64_Elt);
 }
