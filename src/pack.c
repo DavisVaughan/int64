@@ -63,7 +63,7 @@ static SEXP new_unpacked_data_frame(R_len_t size);
 
 // [[ export() ]]
 SEXP export_int64_unpack(SEXP x) {
-  long long* p_x = INT64(x);
+  int64_t* p_x = INT64(x);
 
   R_xlen_t size = Rf_xlength(x);
 
@@ -74,7 +74,7 @@ SEXP export_int64_unpack(SEXP x) {
   double* p_last = REAL(last);
 
   for (R_xlen_t i = 0; i < size; ++i) {
-    long long elt = p_x[i];
+    int64_t elt = p_x[i];
 
     if (elt == NA_INT64) {
       p_first[i] = NA_REAL;
@@ -82,20 +82,31 @@ SEXP export_int64_unpack(SEXP x) {
       continue;
     }
 
-    // Split by accessing 32 bits at a time
-    int* p_elt_32 = (int*) &elt;
+    // Map long long into unsigned long long range
+    // Bit shifts are only well defined on unsigned values
 
-    int elt_first = p_elt_32[0];
-
-    // Map from int range to unsigned int range
-    // `- abs(elt_first)` to avoid ambiguity in int -> unsigned int promotion
-    if (signbit(elt_first)) {
-      p_first[i] = (double) (UINT_MAX + 1 - abs(elt_first));
+    uint64_t elt_ull;
+    if (signbit(elt)) {
+      elt_ull = (uint64_t) (elt + 1 + LLONG_MAX) - LLONG_MIN;
     } else {
-      p_first[i] = (double) elt_first;
+      elt_ull = (uint64_t) elt;
     }
 
-    p_last[i] = (double) p_elt_32[1];
+    // Bit shift to separate into two chunks of 32 bits
+    // (I think this isn't specific to any endianness)
+    uint32_t elt_first = (uint32_t) (elt_ull & 0xFFFFFFFFLL);
+    uint32_t elt_last = (uint32_t) (elt_ull >> 32);
+
+    // Map unsigned int into int range, then convert to double
+    int32_t elt_last_int;
+    if (elt_last > INT32_MAX) {
+      elt_last_int = ((int32_t) (elt_last - 1 - INT32_MAX) + INT32_MIN);
+    } else {
+      elt_last_int = elt_last;
+    }
+
+    p_first[i] = (double) elt_first;
+    p_last[i] = (double) elt_last_int;
   }
 
   SEXP out = PROTECT(new_unpacked_data_frame(size));
@@ -119,8 +130,7 @@ SEXP export_int64_pack(SEXP x) {
 
   SEXP out = PROTECT(altrep_int64_alloc(size));
   new_int64(out);
-  long long* p_out_64 = INT64(out);
-  int* p_out_32 = (int*) p_out_64;
+  int64_t* p_out = INT64(out);
 
   for (R_xlen_t i = 0; i < size; ++i) {
     double elt_first = p_first[i];
@@ -128,24 +138,36 @@ SEXP export_int64_pack(SEXP x) {
 
     // Only need to check one
     if (elt_first == NA_REAL) {
-      p_out_64[i] = NA_INT64;
+      p_out[i] = NA_INT64;
       continue;
     }
 
-    int loc = i * 2;
+    // Always positive, easy
+    uint32_t elt_first_u32 = (uint32_t) elt_first;
 
-    // Store in long long to avoid overflow. This is faster
-    // than doing arithmetic and comparisons with doubles
-    long long elt_first_ll = (long long) elt_first;
+    // Always representable in an int
+    int elt_last_int = (int) elt_last;
 
-    // Map from unsigned int range to int range
-    if (elt_first_ll > INT_MAX) {
-      p_out_32[loc] = (int) (elt_first_ll - UINT_MAX - 1);
+    // Map from int to unsigned int range
+    uint32_t elt_last_u32;
+    if (signbit(elt_last_int)) {
+      elt_last_u32 = (uint32_t) (elt_last_int + 1 + INT_MAX) - INT_MIN;
     } else {
-      p_out_32[loc] = (int) elt_first_ll;
+      elt_last_u32 = (uint32_t) elt_last_int;
     }
 
-    p_out_32[loc + 1] = (int) elt_last;
+    // Reconstruct unsigned long long
+    uint64_t elt_ull = ((uint64_t) elt_last_u32) << 32 | elt_first_u32;
+
+    // Map unsigned long long to long long range
+    int64_t elt;
+    if (elt_ull > LLONG_MAX) {
+      elt = (int64_t) (elt_ull - 1 - LLONG_MAX) + LLONG_MIN;
+    } else {
+      elt = (int64_t) elt_ull;
+    }
+
+    p_out[i] = elt;
   }
 
   UNPROTECT(1);
