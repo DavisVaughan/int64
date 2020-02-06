@@ -87,7 +87,7 @@ SEXP export_int64_unpack(SEXP x) {
 
     uint64_t elt_ull;
     if (signbit(elt)) {
-      elt_ull = (uint64_t) (elt + 1 + LLONG_MAX) - LLONG_MIN;
+      elt_ull = (uint64_t) (elt + 1 + INT64_MAX) - INT64_MIN;
     } else {
       elt_ull = (uint64_t) elt;
     }
@@ -146,12 +146,12 @@ SEXP export_int64_pack(SEXP x) {
     uint32_t elt_first_u32 = (uint32_t) elt_first;
 
     // Always representable in an int
-    int elt_last_int = (int) elt_last;
+    int32_t elt_last_int = (int32_t) elt_last;
 
     // Map from int to unsigned int range
     uint32_t elt_last_u32;
     if (signbit(elt_last_int)) {
-      elt_last_u32 = (uint32_t) (elt_last_int + 1 + INT_MAX) - INT_MIN;
+      elt_last_u32 = (uint32_t) (elt_last_int + 1 + INT32_MAX) - INT32_MIN;
     } else {
       elt_last_u32 = (uint32_t) elt_last_int;
     }
@@ -161,8 +161,8 @@ SEXP export_int64_pack(SEXP x) {
 
     // Map unsigned long long to long long range
     int64_t elt;
-    if (elt_ull > LLONG_MAX) {
-      elt = (int64_t) (elt_ull - 1 - LLONG_MAX) + LLONG_MIN;
+    if (elt_ull > INT64_MAX) {
+      elt = (int64_t) (elt_ull - 1 - INT64_MAX) + INT64_MIN;
     } else {
       elt = (int64_t) elt_ull;
     }
