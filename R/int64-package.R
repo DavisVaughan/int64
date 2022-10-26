@@ -2,5 +2,8 @@
 "_PACKAGE"
 
 ## usethis namespace: start
+#' @import rlang
+#' @import vctrs
+#' @useDynLib int64, .registration = TRUE
 ## usethis namespace: end
 NULL
