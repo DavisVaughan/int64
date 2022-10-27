@@ -19,3 +19,5 @@ Imports:
     vctrs
 SystemRequirements:
     C++11
+URL: https://github.com/DavisVaughan/int64
+BugReports: https://github.com/DavisVaughan/int64/issues
