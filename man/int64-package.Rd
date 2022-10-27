@@ -4,12 +4,17 @@
 \name{int64-package}
 \alias{int64}
 \alias{int64-package}
-\title{int64: What the Package Does (One Line, Title Case)}
+\title{int64: Large Integer Types}
 \description{
 What the package does (one paragraph).
 }
 \author{
-\strong{Maintainer}: First Last \email{first.last@example.com} (\href{https://orcid.org/YOUR-ORCID-ID}{ORCID})
+\strong{Maintainer}: Davis Vaughan \email{davis@rstudio.com}
+
+Other contributors:
+\itemize{
+  \item RStudio [copyright holder, funder]
+}
 
 }
 \keyword{internal}
