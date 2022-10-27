@@ -19,14 +19,25 @@ vec_cast.integer.int64_int64 <- function(x, to, ...) {
 signal_oob_int64_to_int <- function(i) {
   signal(i = i, class = "int64:::signal_oob_int64_to_int")
 }
-warn_oob_int64_to_int <- function(i, x, to, ...) {
+warn_oob_int64_to_int <- function(i, x, ...) {
   value <- as.character(x[[i]])
-  message <- cli::format_inline("Value {value} at location {i} (and possibly more locations) will be converted to `NA`.")
+
+  message <- c(
+    i = "Coercing <int64> to <integer> will lose precision.",
+    i = "Lossy values will be converted to `NA`.",
+    i = cli::format_inline("First detected at location {i} with value {value}.")
+  )
+
   warn(message)
 }
 stop_oob_int64_to_int <- function(i, x, to, ...) {
   value <- as.character(x[[i]])
-  details <- cli::format_inline("Value {value} at location {i} would lose precision.")
+
+  details <- c(
+    i = "Converting <int64> to <integer> would lose precision.",
+    i = cli::format_inline("First detected at location {i} with value {value}.")
+  )
+
   stop_incompatible_cast(x, to, ..., details = details)
 }
 with_oob_int64_to_int_handlers <- function(expr, x, to, ..., type) {
@@ -38,7 +49,7 @@ with_oob_int64_to_int_handlers <- function(expr, x, to, ..., type) {
       switch(
         type,
         cast = stop_oob_int64_to_int(i, x, to, ...),
-        coerce = warn_oob_int64_to_int(i, x, to, ...),
+        coerce = warn_oob_int64_to_int(i, x, ...),
         abort("Unknown `type`.", .internal = TRUE)
       )
 

@@ -28,7 +28,7 @@ as.integer.int64_int64 <- function(x, ...) {
   with_oob_int64_to_int_handlers(
     .Call(ffi_coerce_int64_to_int, x),
     x = x,
-    to = to,
+    to = integer(),
     ...,
     type = "coerce"
   )
