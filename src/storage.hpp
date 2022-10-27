@@ -1,7 +1,10 @@
 #ifndef INT64_STORAGE_H
 #define INT64_STORAGE_H
 
-#include <rlang.h>
+#include <rlang.hpp>
+
+namespace pkg {
+namespace storage {
 
 /*
  * This pair of functions facilitates:
@@ -20,33 +23,39 @@
  * An arithmetic shift of `- INT64_MIN` is done to remap the int64_t value
  * into uint64_t space, while maintaining order. This relies on unsigned
  * arithmetic overflow behavior, which is well-defined.
+ *
+ * Missing values are assumed to be handled outside this function by checking
+ * to see if `isnan(x.r)` is true.
  */
 
 static inline
-r_complex int64_to_cpl(int64_t x) {
-  const uint64_t x_u64 = ((uint64_t) x) - INT64_MIN;
+r_complex convert(int64_t x) {
+  const uint64_t x_u64 = static_cast<uint64_t>(x) - INT64_MIN;
 
-  const uint32_t left_u32 = (uint32_t) (x_u64 >> 32);
-  const uint32_t right_u32 = (uint32_t) x_u64;
+  const uint32_t left_u32 = static_cast<uint32_t>(x_u64 >> 32);
+  const uint32_t right_u32 = static_cast<uint32_t>(x_u64);
 
   const r_complex out = {
-    .r = (double) left_u32,
-    .i = (double) right_u32
+    .r = static_cast<double>(left_u32),
+    .i = static_cast<double>(right_u32)
   };
 
   return out;
 }
 
 static inline
-int64_t int64_to_int64(r_complex x) {
-  const uint32_t left_u32 = (uint32_t) x.r;
-  const uint32_t right_u32 = (uint32_t) x.i;
+int64_t convert(r_complex x) {
+  const uint32_t left_u32 = static_cast<uint32_t>(x.r);
+  const uint32_t right_u32 = static_cast<uint32_t>(x.i);
 
-  const uint64_t out_u64 = ((uint64_t) left_u32) << 32 | right_u32;
+  const uint64_t out_u64 = static_cast<uint64_t>(left_u32) << 32 | right_u32;
 
-  const int64_t out = (int64_t) (out_u64 + INT64_MIN);
+  const int64_t out = static_cast<int64_t>(out_u64 + INT64_MIN);
 
   return out;
 }
+
+};
+};
 
 #endif
