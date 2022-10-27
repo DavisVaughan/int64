@@ -11,5 +11,5 @@ r_obj* init_library(r_obj* ns) {
   return r_null;
 }
 
-}
-}
+} // namespace ffi
+} // namespace pkg

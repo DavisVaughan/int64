@@ -4,7 +4,6 @@
 #include <rlang.hpp>
 
 namespace pkg {
-namespace storage {
 
 /*
  * This pair of functions facilitates:
@@ -55,7 +54,6 @@ int64_t convert(r_complex x) {
   return out;
 }
 
-};
-};
+} // namespace pkg
 
 #endif

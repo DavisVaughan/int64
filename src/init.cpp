@@ -15,8 +15,8 @@ extern r_obj* coerce_int_to_int64(r_obj*);
 extern r_obj* coerce_int64_to_int(r_obj*);
 extern r_obj* coerce_int64_to_chr(r_obj*);
 
-};
-};
+} // namespace ffi
+} // namespace pkg
 
 extern "C" {
 
@@ -35,4 +35,4 @@ export void R_init_int64(DllInfo *dll) {
   R_useDynamicSymbols(dll, FALSE);
 }
 
-}
+} // extern "C"

@@ -4,7 +4,6 @@
 #include <rlang.hpp>
 
 namespace pkg {
-namespace globals {
 
 struct envs {
   static r_obj* int64;
@@ -32,7 +31,6 @@ struct values {
   static int max_print_size_int64;
 };
 
-}
-}
+} // namespace pkg
 
 #endif
